@@ -3,6 +3,12 @@ from scrapy.crawler import CrawlerProcess
 import sys
 import os
 
+# IMPORTS FROM YOUR MODULES
+from crawler.filtering import get_valid_links
+from crawler.storage import save_page
+from crawler.logging_utils import log_page
+from crawler.performance import get_settings
+
 
 class WebCrawler(scrapy.Spider):
     name = "web_crawler"
