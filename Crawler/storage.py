@@ -16,7 +16,7 @@ def save_page(url, html_content):
     print(f"Saved: {filepath}") 
 '''
 data_folder = "data" # Folder name
-map_file = "url_map.json" # File name for the URL to filename mapping
+map_file = os.path.join(data_folder, "url_map.json") # File name for the URL to filename mapping/ To also make sure the json file is the data_folder
 
 # Just giving the url a unique id (hash)
 def url_filename_hash(url):
@@ -35,6 +35,27 @@ def save_map(mapping):
     with open(map_file, "w") as f:
         json.dump(mapping, f, indent=2)
 
+
 def save_page(url, html_content):
-    pass
+    # Data folder creation
+    os.makedirs(data_folder, exist_ok= True) # Creating the data folder if it doesnt exist yet
+    mapping = load_map() #Loading the mapping from the json file (if it exists) as a python dictionarty
+
+    # Duplicate check
+    if url in mapping:
+        print(f"Skipped (duplicate): {url}") # If the url is already in the mapping, skip saving and print a message
+        return
+    
+    # File creation
+    filename = url_filename_hash(url) + ".html" #Creating a unique filename for the HTML file
+    filepath = os.path.join(data_folder, filename) 
+    with open (filepath, "w", encoding="utf-8") as f:
+        f.write(html_content) # Saving the HTML content to the file
+
+    # Mapping update
+    mapping[url] = filename # Here I create a mapping of the url to the filename in the mapping director (updating the directory)
+    save_map(mapping) # Saving the updated mapping to the json file
+    print(f"Saved: {filepath}")
+
+
 
