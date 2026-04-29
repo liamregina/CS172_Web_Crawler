@@ -3,11 +3,24 @@ from scrapy.crawler import CrawlerProcess
 import sys
 import os
 
+#temporary function stubs for testing
+
+def get_valid_links(response):
+    return [link for link in response.css("a::attr(href)").getall() if link.startswith("http")]
+
+def save_page(response, output_dir, page_count):
+    filename = os.path.join(output_dir, f"page_{page_count}.html")
+    with open(filename, "wb") as f:
+        f.write(response.body)
+
+def log_page(count, url):
+    print(f"Crawled {count}: {url}")
+
 # IMPORTS FROM YOUR MODULES
-from crawler.filtering import get_valid_links
-from crawler.storage import save_page
-from crawler.logging_utils import log_page
-from crawler.performance import get_settings
+# from crawler.filtering import get_valid_links
+# from crawler.storage import save_page
+# from crawler.logging_utils import log_page
+# from crawler.performance import get_settings
 
 
 class WebCrawler(scrapy.Spider):
