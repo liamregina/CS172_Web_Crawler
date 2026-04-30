@@ -24,11 +24,18 @@ def url_filename_hash(url):
 
 # Checking if json file exists, if not create an empty dictionary
 def load_map():
+    # Making sure the data folder exists
+    os.makedirs(data_folder, exist_ok=True)
+
     if not os.path.exists(map_file):
         return {}
     
-    with open(map_file, "r") as f: # But if map_file exists, open/load the mapping from the json file as a python dictionary
-        return json.load(f)
+    try:
+        with open(map_file, "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
 
 # This is to keep updating the mapped dictionary and sending it to the Json file (updated)
 def save_map(mapping):
