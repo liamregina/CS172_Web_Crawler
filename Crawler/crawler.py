@@ -5,8 +5,7 @@ import os
 
 #temporary function stubs for testing
 
-def get_valid_links(response):
-    return [link for link in response.css("a::attr(href)").getall() if link.startswith("http")]
+
 
 def save_page(response, output_dir, page_count):
     filename = os.path.join(output_dir, f"page_{page_count}.html")
@@ -17,10 +16,15 @@ def log_page(count, url):
     print(f"Crawled {count}: {url}")
 
 # IMPORTS FROM YOUR MODULES
-# from crawler.filtering import get_valid_links
+#from crawler.filtering import get_valid_links
+from filtering import get_valid_links
 # from crawler.storage import save_page
+from storage import save_page
 # from crawler.logging_utils import log_page
+from logging_utils import log_page
 # from crawler.performance import get_settings
+from performance import get_settings
+
 
 
 class WebCrawler(scrapy.Spider):
@@ -47,10 +51,8 @@ class WebCrawler(scrapy.Spider):
             return
         self.visited.add(response.url)
 
-        # Save HTML
-        filename = os.path.join(self.output_dir, f"page_{self.page_count}.html")
-        with open(filename, "wb") as f:
-            f.write(response.body)
+        save_page(response, self.output_dir, self.page_count)
+        log_page(self.page_count, response.url)
 
         self.page_count += 1
 
@@ -58,7 +60,7 @@ class WebCrawler(scrapy.Spider):
         current_depth = response.meta.get("depth", 0)
 
         if current_depth < self.max_depth:
-            links = response.css("a::attr(href)").getall()
+            links = get_valid_links(response)
 
             for link in links:
                 if link.startswith("http"):
@@ -96,3 +98,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

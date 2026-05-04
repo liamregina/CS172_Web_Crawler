@@ -1,4 +1,6 @@
 __pycache__/
 .vscode
 data/
-pylucene-10.0.0-src/
+pylucene-10.0.0-src/venv/
+__pycache__/
+*.pyc

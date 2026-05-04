@@ -104,4 +104,6 @@ def is_html_resource(url):
         return True  # Default to allowing if we can't parse
 
 
-
+def get_valid_links(response):
+    raw_links = response.css("a::attr(href)").getall()
+    return [link for link in raw_links if filter_link(link)]

@@ -36,26 +36,10 @@ def save_map(mapping):
         json.dump(mapping, f, indent=2)
 
 
-def save_page(url, html_content):
-    # Data folder creation
-    os.makedirs(data_folder, exist_ok= True) # Creating the data folder if it doesnt exist yet
-    mapping = load_map() #Loading the mapping from the json file (if it exists) as a python dictionarty
-
-    # Duplicate check
-    if url in mapping:
-        print(f"Skipped (duplicate): {url}") # If the url is already in the mapping, skip saving and print a message
-        return
-    
-    # File creation
-    filename = url_filename_hash(url) + ".html" #Creating a unique filename for the HTML file
-    filepath = os.path.join(data_folder, filename) 
-    with open (filepath, "w", encoding="utf-8") as f:
-        f.write(html_content) # Saving the HTML content to the file
-
-    # Mapping update
-    mapping[url] = filename # Here I create a mapping of the url to the filename in the mapping director (updating the directory)
-    save_map(mapping) # Saving the updated mapping to the json file
-    print(f"Saved: {filepath}")
+def save_page(response, output_dir, page_count):
+    filename = os.path.join(output_dir, f"page_{page_count}.html")
+    with open(filename, "wb") as f:
+        f.write(response.body)
 
 
 
