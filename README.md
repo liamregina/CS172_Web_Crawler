@@ -106,7 +106,13 @@ README.md              # project documentation
 
 Example Command: 
 
-bash scripts/crawler.sh crawler/seed.txt 5 1 data
+Mac:
+scripts\crawler.sh Crawler\seed.txt 50 2 yesOpt data 
+scripts\crawler.sh Crawler\seed.txt 50 2 noOpt data
+
+Windows:
+scripts\crawler.bat Crawler\seed.txt 50 2 noOpt data
+scripts\crawler.bat Crawler\seed.txt 50 2 yesOpt data
 
 Example Output:
 
