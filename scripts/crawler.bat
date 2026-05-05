@@ -1,25 +1,3 @@
-@REM @echo off
-@REM REM Usage:
-@REM REM scripts\crawler.bat Crawler\seed.txt 10000 6 data\crawl_output
-
-@REM set SEED_FILE=%1
-@REM set NUM_PAGES=%2
-@REM set HOPS=%3
-@REM set OUT_DIR=%4
-
-@REM if "%SEED_FILE%"=="" (
-@REM     echo Missing seed file.
-@REM     echo Usage: scripts\crawler.bat Crawler\seed.txt 10000 6 data\crawl_output
-@REM     exit /b 1
-@REM )
-@REM if "%NUM_PAGES%"=="" set NUM_PAGES=10000
-@REM if "%HOPS%"=="" set HOPS=6
-@REM if "%OUT_DIR%"=="" set OUT_DIR=data\crawl_output
-
-@REM cd /d "%~dp0.."
-
-@REM python Crawler\crawler.py "%SEED_FILE%" %NUM_PAGES% %HOPS% "%OUT_DIR%"
-
 @echo off
 REM Usage:
 REM scripts\crawler.bat Crawler\seed.txt 10000 6 data\crawl_output
