@@ -20,8 +20,8 @@ if "%SEED_FILE%"=="" (
     exit /b 1
 )
 
-if "%NUM_PAGES%"=="" set "NUM_PAGES=10000"
-if "%HOPS%"=="" set "HOPS=6"
+if "%NUM_PAGES%"=="" set "NUM_PAGES=10"
+if "%HOPS%"=="" set "HOPS=3"
 
 if "%OPTIMIZE%"=="" (
     set "OPTIMIZE=noOpt"

@@ -18,8 +18,8 @@ if [ -z "$SEED_FILE" ]; then
   exit 1
 fi
 
-[ -z "$NUM_PAGES" ] && NUM_PAGES=10000
-[ -z "$HOPS" ] && HOPS=6
+[ -z "$NUM_PAGES" ] && NUM_PAGES=10
+[ -z "$HOPS" ] && HOPS=3
 
 if [ -z "$OPTIMIZE" ]; then
   OPTIMIZE="noOpt"
