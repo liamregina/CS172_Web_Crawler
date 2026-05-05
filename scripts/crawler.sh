@@ -1,38 +1,29 @@
 #!/usr/bin/env bash
 set -e
 
-# Usage:
-# ./scripts/crawler.sh Crawler/seed.txt 10000 6 data/crawl_output
-
 SEED_FILE="$1"
 NUM_PAGES="$2"
 HOPS="$3"
-OUT_DIR="$4"
-EXTRA_ARG="$5"
+OPTIMIZE="$4"
+OUT_DIR="$5"
+EXTRA_ARG="$6"
 
-# Too many arguments
 if [ -n "$EXTRA_ARG" ]; then
   echo "ERROR: Too many arguments."
-  echo "Usage: ./scripts/crawler.sh Crawler/seed.txt [num_pages] [depth] [output_dir]"
   exit 1
 fi
 
-# Missing required seed file
 if [ -z "$SEED_FILE" ]; then
   echo "ERROR: Missing seed file."
-  echo "Usage: ./scripts/crawler.sh Crawler/seed.txt [num_pages] [depth] [output_dir]"
   exit 1
 fi
 
-# Defaults
-if [ -z "$NUM_PAGES" ]; then
-  NUM_PAGES=10000
-  echo "NUM_PAGES not provided. Using default: 10000"
-fi
+[ -z "$NUM_PAGES" ] && NUM_PAGES=10000
+[ -z "$HOPS" ] && HOPS=6
 
-if [ -z "$HOPS" ]; then
-  HOPS=6
-  echo "DEPTH not provided. Using default: 6"
+if [ -z "$OPTIMIZE" ]; then
+  OPTIMIZE="noOpt"
+  echo "OPTIMIZATION not provided. Using default: noOpt"
 fi
 
 if [ -z "$OUT_DIR" ]; then
@@ -42,4 +33,4 @@ fi
 
 cd "$(dirname "$0")/.."
 
-python Crawler/crawler.py "$SEED_FILE" "$NUM_PAGES" "$HOPS" "$OUT_DIR"
+python Crawler/crawler.py "$SEED_FILE" "$NUM_PAGES" "$HOPS" "$OPTIMIZE" "$OUT_DIR"

@@ -41,5 +41,30 @@ def save_page(response, output_dir, page_count):
     with open(filename, "wb") as f:
         f.write(response.body)
 
+def seed_folder_store(seed_url, output_dir):
+    folder_name = seed_url
 
+    # remove protocol
+    folder_name = folder_name.replace("https://", "")
+    folder_name = folder_name.replace("http://", "")
 
+    # clean invalid characters
+    invalids = ['.', '/', ':', '?', '&', '=', '%', '#', '!', '@']
+    for char in invalids:
+        folder_name = folder_name.replace(char, "_")
+
+    # remove duplicate underscores
+    while "__" in folder_name:
+        folder_name = folder_name.replace("__", "_")
+
+    folder_name = folder_name.strip("_")
+
+    # limit length
+    folder_name = folder_name[:40]
+
+    # create inside output_dir (IMPORTANT FIX)
+    new_dir = os.path.join(output_dir, folder_name)
+    os.makedirs(new_dir, exist_ok=True)
+
+    print(f"Created folder: {new_dir}")
+    return new_dir

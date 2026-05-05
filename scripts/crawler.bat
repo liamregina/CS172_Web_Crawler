@@ -1,33 +1,31 @@
 @echo off
 REM Usage:
-REM scripts\crawler.bat Crawler\seed.txt 10000 6 data\crawl_output
+REM scripts\crawler.bat Crawler\seed.txt 10000 6 yesOpt data
 
 set "SEED_FILE=%~1"
 set "NUM_PAGES=%~2"
 set "HOPS=%~3"
-set "OUT_DIR=%~4"
-set "EXTRA_ARG=%~5"
+set "OPTIMIZE=%~4"
+set "OUT_DIR=%~5"
+set "EXTRA_ARG=%~6"
 
 if not "%EXTRA_ARG%"=="" (
     echo ERROR: Too many arguments.
-    echo Usage: scripts\crawler.bat Crawler\seed.txt [num_pages] [depth] [output_dir]
+    echo Usage: scripts\crawler.bat Crawler\seed.txt [num_pages] [depth] [yesOpt/noOpt] [output_dir]
     exit /b 1
 )
 
 if "%SEED_FILE%"=="" (
     echo ERROR: Missing seed file.
-    echo Usage: scripts\crawler.bat Crawler\seed.txt [num_pages] [depth] [output_dir]
     exit /b 1
 )
 
-if "%NUM_PAGES%"=="" (
-    set "NUM_PAGES=10000"
-    echo NUM_PAGES not provided. Using default: 10000
-)
+if "%NUM_PAGES%"=="" set "NUM_PAGES=10000"
+if "%HOPS%"=="" set "HOPS=6"
 
-if "%HOPS%"=="" (
-    set "HOPS=6"
-    echo DEPTH not provided. Using default: 6
+if "%OPTIMIZE%"=="" (
+    set "OPTIMIZE=noOpt"
+    echo OPTIMIZATION not provided. Using default: noOpt
 )
 
 if "%OUT_DIR%"=="" (
@@ -37,4 +35,4 @@ if "%OUT_DIR%"=="" (
 
 cd /d "%~dp0.."
 
-python Crawler\crawler.py "%SEED_FILE%" "%NUM_PAGES%" "%HOPS%" "%OUT_DIR%"
+python Crawler\crawler.py "%SEED_FILE%" "%NUM_PAGES%" "%HOPS%" "%OPTIMIZE%" "%OUT_DIR%"
