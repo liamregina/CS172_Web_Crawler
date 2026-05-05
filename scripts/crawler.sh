@@ -36,8 +36,8 @@ if [ -z "$HOPS" ]; then
 fi
 
 if [ -z "$OUT_DIR" ]; then
-  OUT_DIR="data/crawl_output"
-  echo "OUTPUT_DIR not provided. Using default: data/crawl_output"
+  OUT_DIR="data"
+  echo "OUTPUT_DIR not provided. Using default: data"
 fi
 
 cd "$(dirname "$0")/.."

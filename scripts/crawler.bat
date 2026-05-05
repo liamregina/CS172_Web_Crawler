@@ -53,8 +53,8 @@ if "%HOPS%"=="" (
 )
 
 if "%OUT_DIR%"=="" (
-    set "OUT_DIR=data\crawl_output"
-    echo OUTPUT_DIR not provided. Using default: data\crawl_output
+    set "OUT_DIR=data"
+    echo OUTPUT_DIR not provided. Using default: data
 )
 
 cd /d "%~dp0.."
