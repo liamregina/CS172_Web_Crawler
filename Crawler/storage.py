@@ -1,6 +1,7 @@
 import os
 import hashlib # Need it for the md5 hash function
 import json # For saving the metadata
+from pathlib import Path
 '''
 # Starter Code (simple HTML storage function)
 
@@ -41,5 +42,36 @@ def save_page(response, output_dir, page_count):
     with open(filename, "wb") as f:
         f.write(response.body)
 
+def seed_folder_store(seed_url):
+    # for every time a seed runs
+    # create a new folder that has the name of the seed and store HTML files there
+    # for better organization and to keep track of runs
+    folder_name = seed_url
+
+    # remove https 
+    folder_name = folder_name.replace("https://", "")
+    folder_name = folder_name.replace("http://", "")
+
+    # remove random invalids and remove other duplicates
+    invalids = ['.', '/', ':', '?', '&', '=', '%', '#', '!', '@']
+
+    for char in invalids:
+        folder_name = folder_name.replace(char, "_")
+
+    while "__" in folder_name:
+        folder_name = folder_name.replace("__", "_")
+
+    folder_name = folder_name.strip("_")
+
+    # make sure not too long named
+    folder_name = folder_name[:40]
+
+    # create directory/folder inside /data with the new folder name
+    new_dir = Path('data') / folder_name
+    new_dir.mkdir(parents=True, exist_ok=True)
+
+    # should exit and crawler should start crawling as normal
+    print(f"Created folder: {new_dir}")
+    return new_dir
 
 
