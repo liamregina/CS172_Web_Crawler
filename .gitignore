@@ -4,3 +4,5 @@ data/
 pylucene-10.0.0-src/venv/
 __pycache__/
 *.pyc
+venv
+pylucene-10.0.0-src
