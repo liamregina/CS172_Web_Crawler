@@ -107,12 +107,12 @@ README.md              # project documentation
 Example Command: 
 
 Mac:
-scripts\crawler.sh Crawler\seed.txt 50 2 yesOpt data 
-scripts\crawler.sh Crawler\seed.txt 50 2 noOpt data
+scripts\crawler.sh Crawler\seed.txt 50 2 yesOpt data <br>
+scripts\crawler.sh Crawler\seed.txt 50 2 noOpt data <br>
 
 Windows:
-scripts\crawler.bat Crawler\seed.txt 50 2 noOpt data
-scripts\crawler.bat Crawler\seed.txt 50 2 yesOpt data
+scripts\crawler.bat Crawler\seed.txt 50 2 noOpt data <br>
+scripts\crawler.bat Crawler\seed.txt 50 2 yesOpt data <br>
 
 Example Output:
 
