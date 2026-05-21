@@ -4,7 +4,7 @@
 # Each result includes rank, title, url, score, snippet, and html_file.
 # Depends on snippet.py for snippet generation and config.py for shared constants.
 import lucene
-
+import sys
 # Java standard library
 from java.nio.file import Paths
 from java.util import HashMap
@@ -152,7 +152,7 @@ def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
         "html_file": html_file,
     }
     
-
+# TODO: run 'python -m Indexer.searcher "your query here"' to test after index is built
 # FIXME: REMOVE THIS WHEN DONE. SEE NOTE BELOW
 def main():
     """
@@ -163,4 +163,26 @@ def main():
     NOTE: This is for testing only. The Flask app calls search() directly,
     not main(). You need to build the index with indexer.py before this works.
     """
+    if len(sys.argv) < 2:
+        print("Usage: python -m Indexer.searcher \"your query here\"")
+        return
+
+    query_str = " ".join(sys.argv[1:])
+    print(f"Searching for: {query_str}\n")
+
+    results = search(query_str)
+
+    if not results:
+        print("No results found.")
+        return
+
+    for result in results:
+        print(f"[{result['rank']}] {result['title']}")
+        print(f"    URL:   {result['url']}")
+        print(f"    Score: {result['score']:.4f}")
+        print(f"    {result['snippet']}")
+        print()
+
+if __name__ == "__main__":
+    main()
     
