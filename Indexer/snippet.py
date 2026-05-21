@@ -22,6 +22,7 @@ def get_snippet(body: str, query: str) -> str:
     body_lower = body.lower()
     match_index = _find_match_index(body_lower, terms)
 
+    # NOTE: user it not informed if no match was found. 
     # No query term found anywhere in the body. Fall back to opening
     if match_index == -1:
         return body[:200] + ("..." if len(body) > 200 else "")
