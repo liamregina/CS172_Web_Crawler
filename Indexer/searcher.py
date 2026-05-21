@@ -3,6 +3,23 @@
 # and returns the top 10 results ranked by Lucene score.
 # Each result includes rank, title, url, score, snippet, and html_file.
 # Depends on snippet.py for snippet generation and config.py for shared constants.
+import lucene
+
+# Java standard library
+from java.nio.file import Paths
+from java.util import HashMap
+from java.lang import Float
+
+# PyLucene
+from org.apache.lucene.store import FSDirectory
+from org.apache.lucene.index import DirectoryReader
+from org.apache.lucene.search import IndexSearcher
+from org.apache.lucene.analysis.standard import StandardAnalyzer
+from org.apache.lucene.queryparser.classic import MultiFieldQueryParser
+
+# Local
+from config import INDEX_DIR, TOP_K, FIELD_BOOSTS, TITLE_FIELD, URL_FIELD, BODY_FIELD, HTML_FILE_FIELD
+from snippet import get_snippet
 
 def init_jvm() -> None:
     """
@@ -12,14 +29,16 @@ def init_jvm() -> None:
     NOTE: Do not call this from the Flask app directly. search() calls it
     internally. Calling it twice from different places will cause a crash.
     """
-    pass
+
+    if not lucene.getVMEnv():
+        lucene.initVM(vmargs=['-Djava.awt.headless=true'])
 
 
 def get_searcher():
     """
     Open and cache the IndexSearcher against the index at INDEX_DIR.
     Returns the cached instance on subsequent calls so the index
-    is not reopened on every query.
+    is not reopened on every query (that would be expensive).
 
     NOTE (Flask): Every Flask worker thread must call
     lucene.getVMEnv().attachCurrentThread() before this function runs.
@@ -28,10 +47,21 @@ def get_searcher():
     NOTE (Person 2): The index must exist at the path defined in config.INDEX_DIR
     before this is called. Run indexer.py first to build it.
     """
-    pass
+    global _searcher_cache
 
+    init_jvm()
+    lucene.getVMEnv().attachCurrentThread()
 
-def search(query_str: str, k: int = 10) -> list[dict]:
+    if _searcher_cache is None:
+        return _searcher_cache
+    
+    directory = FSDirectory.open(Paths.get(INDEX_DIR))
+    reader = DirectoryReader.open(directory)
+    _searcher_cache = IndexSearcher(reader)
+
+    return _searcher_cache
+
+def search(query_str: str, k: int = TOP_K) -> list[dict]:
     """
     Main entry point. Accepts a query string, searches the Lucene index
     across all fields with boosting, and returns the top k results.
@@ -46,21 +76,52 @@ def search(query_str: str, k: int = 10) -> list[dict]:
     it means those fields were not stored in the index. Make sure you are
     using Field.Store.YES for all fields in indexer.py.
     """
-    pass
+    if not query_str or not query_str.strip():
+        return []
+
+    try:
+        index_searcher = get_searcher() # rets cached searcher
+        analyzer = StandardAnalyzer()
+        query = _build_query(query_str, analyzer)
+        top_docs = index_searcher.search(query, k)
+
+        results = []
+        for rank, score_doc in enumerate(top_docs.scoreDocs, start=1):
+            result = _hit_to_dict(index_searcher, score_doc, rank, query_str)
+            results.append(result)
+
+        return results
+
+    except Exception as e:
+        print(f"Search error: {e}")
+        return []
 
 
 def _build_query(query_str: str, analyzer):
     """
-    Build a MultiFieldQueryParser query across title, headers, url, and body
+    Build a MultiFieldQueryParser (def below)
+    across title, headers, url, and body
     with boosts defined in config.FIELD_BOOSTS.
     Returns a Lucene Query object.
 
-    NOTE (Person 2): The field names used here are pulled from config.py.
+    NOTE MultipleFieldQueryParser: is a Lucene class that allows searching across multiple fields
+    with different boosts. You pass it the list of fields to search, the analyzer (which tokenizes 
+    the query the same way the indexer tokenized the documents), and the boosts HashMap telling it 
+    how much each field matters. 
+   
+     NOTE (Person 2): The field names used here are pulled from config.py.
     If your indexed field names do not match config.py exactly, every
-    query will return zero results. Double check title, headers, body,
-    url, and html_file all match.
+    query will return zero results. 
     """
-    pass
+    fields = list(FIELD_BOOSTS.keys())
+
+    # Lucene expects boosts as a Java HashMap with Java Float values
+    boosts = HashMap()
+    for field, boost in FIELD_BOOSTS.items():
+        boosts.put(field, Float(boost))
+
+    parser = MultiFieldQueryParser(fields, analyzer, boosts)
+    return parser.parse(query_str) # .parse converts user plain text to Lucene Query object, applying tokenization and boosts
 
 
 def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
@@ -74,7 +135,23 @@ def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
     and html_file. If any of these return None it means that field was
     not stored when you built the index. Use Field.Store.YES for all of them.
     """
-    pass
+
+    doc = index_searcher.doc(score_doc.doc)
+
+    title = doc.get(TITLE_FIELD) or ""
+    url = doc.get(URL_FIELD) or ""
+    body = doc.get(BODY_FIELD) or ""
+    html_file = doc.get(HTML_FILE_FIELD) or ""
+
+    return {
+        "rank": rank, # the loop in search() assigns rank by hits
+        "title": title,
+        "url": url,
+        "score": score_doc.score, # .score assigned by Lucene
+        "snippet": get_snippet(body, query_str),
+        "html_file": html_file,
+    }
+    
 
 # FIXME: REMOVE THIS WHEN DONE. SEE NOTE BELOW
 def main():
@@ -86,4 +163,4 @@ def main():
     NOTE: This is for testing only. The Flask app calls search() directly,
     not main(). You need to build the index with indexer.py before this works.
     """
-    pass
+    
