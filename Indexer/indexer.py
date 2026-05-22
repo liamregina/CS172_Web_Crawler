@@ -9,7 +9,7 @@ import lucene
 # Allowing the indexer to run correctly from the main project folder like 
 # python Crawler/indexer/indexer.py data/<seed_folder>/optimized index
 CURRENTDIR = Path(__file__).resolve().parent
-PROJECTROOT = CURRENTDIR.parent.parent
+PROJECTROOT = CURRENTDIR.parent
 
 if str(CURRENTDIR) not in sys.path:
     sys.path.insert(0, str(CURRENTDIR))
@@ -41,7 +41,7 @@ from org.apache.lucene.store import FSDirectory as LuceneFSDirectory
 try:
     from Indexer.document_loader import load_documents
 except ImportError:
-    from Crawler.indexer.document_loader import load_documents
+    from document_loader import load_documents
 
 
 def normalizeWhiteSpace(text: Any) -> str:
