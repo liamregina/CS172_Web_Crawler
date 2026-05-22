@@ -24,4 +24,4 @@ if "%INDEX_DIR%"=="" (
 
 cd /d "%~dp0.."
 
-python Crawler\indexer\indexer.py "%INPUT_DIR%" "%INDEX_DIR%"
+python Indexer\indexer.py "%INPUT_DIR%" "%INDEX_DIR%"

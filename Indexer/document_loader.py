@@ -8,7 +8,7 @@ from pathlib import Path
 try:
     from Indexer.html_parser import clean_text, parse_html_file
 except ImportError:
-    from html_parser import clean_text, parse_html_file
+    from Indexer.html_parser import clean_text, parse_html_file
 
 
 def get_html_path(html_file, input_dir):

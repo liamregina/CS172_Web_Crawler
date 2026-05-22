@@ -39,7 +39,7 @@ from org.apache.lucene.store import FSDirectory as LuceneFSDirectory
 
 
 try:
-    from document_loader import load_documents
+    from Indexer.document_loader import load_documents
 except ImportError:
     from Crawler.indexer.document_loader import load_documents
 

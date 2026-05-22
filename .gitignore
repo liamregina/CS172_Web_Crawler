@@ -1,4 +1,4 @@
-__pycache__/
+*.__pycache__/
 .vscode
 data/
 pylucene-10.0.0-src/venv/

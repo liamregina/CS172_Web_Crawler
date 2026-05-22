@@ -25,4 +25,4 @@ fi
 
 cd "$(dirname "$0")/.."
 
-python Crawler/indexer/indexer.py "$INPUT_DIR" "$INDEX_DIR"
+python Indexer/indexer.py "$INPUT_DIR" "$INDEX_DIR"
