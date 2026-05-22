@@ -144,17 +144,17 @@ def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
 
     doc = index_searcher.doc(score_doc.doc)
 
-    title = doc.get(TITLE_FIELD) or ""
-    url = doc.get(URL_FIELD) or ""
-    body = doc.get(BODY_FIELD) or ""
-    html_file = doc.get(HTML_FILE_FIELD) or ""
+    title       = doc.get(TITLE_FIELD)      or ""
+    url         = doc.get(URL_FIELD)        or ""
+    body_text   = doc.get(BODY_FIELD)       or ""
+    html_file   = doc.get(HTML_FILE_FIELD)  or ""
 
     return {
         "rank": rank, # the loop in search() assigns rank by hits
         "title": title,
         "url": url,
         "score": score_doc.score, # .score assigned by Lucene
-        "snippet": get_snippet(body, query_str),
+        "snippet": get_snippet(body_text, query_str),
         "html_file": html_file,
     }
     

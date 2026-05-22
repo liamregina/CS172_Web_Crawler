@@ -116,7 +116,7 @@ def makeLuceneDocument(document: Dict[str, Any]) -> Any:
     # Searchable fields.
     luceneDocument.add(LuceneTextField("title", title, LuceneField.Store.YES))
     luceneDocument.add(LuceneTextField("headers", headers, LuceneField.Store.NO))
-    luceneDocument.add(LuceneTextField("body", body, LuceneField.Store.NO))
+    luceneDocument.add(LuceneTextField("body", body, LuceneField.Store.YES))
     luceneDocument.add(LuceneTextField("url", url, LuceneField.Store.YES))
 
     # Stored fields for showing results later.
