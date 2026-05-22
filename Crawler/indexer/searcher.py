@@ -18,7 +18,7 @@ from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.queryparser.classic import MultiFieldQueryParser
 
 # Local
-from config import INDEX_DIR, TOP_K, FIELD_BOOSTS, TITLE_FIELD, URL_FIELD, BODY_FIELD, HTML_FILE_FIELD
+from Crawler.indexer.config import INDEX_DIR, TOP_K, FIELD_BOOSTS, TITLE_FIELD, URL_FIELD, BODY_FIELD, HTML_FILE_FIELD
 from snippet import get_snippet
 
 def init_jvm() -> None:
