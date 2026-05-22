@@ -4,13 +4,12 @@ from pathlib import Path
 
 
 def clean_text(text):
-    # Cleaning extra spaces, tabs, and newlines
-    
     if not text:
         return ""
-
     text = unescape(str(text))
-    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\s+", " ", text)      # collapse whitespace
+    text = re.sub(r'\.+', '.', text)       # collapse multiple periods
+    text = re.sub(r'\s+\.', '.', text)     # remove space before periods
     return text.strip()
 
 
@@ -57,7 +56,6 @@ def parse_html_string(html):
             "headers": "",
             "body": "",
         }
-
     html = remove_script_and_style(html)
 
     title = extract_tag_text(html, "title")
@@ -80,6 +78,11 @@ def parse_html_string(html):
         "body": clean_text(body_html),
     }
 
+def replace_block_tags_with_periods(html):
+    # Replace closing block-level tags with periods so they become sentence boundaries
+    block_tags = r'</(p|br|div|tr|td|li|h1|h2|h3|h4|h5|h6)>'
+    html = re.sub(block_tags, '. ', html, flags=re.IGNORECASE)
+    return html
 
 def parse_html_file(html_file):
 
@@ -102,5 +105,5 @@ def parse_html_file(html_file):
             "headers": "",
             "body": "",
         }
-
+        html = replace_block_tags_with_periods(html) # convert block tags to sentence boundaries
     return parse_html_string(html)

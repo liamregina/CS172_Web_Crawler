@@ -42,22 +42,17 @@ def make_document(item, doc_id, input_dir):
 
     html_file = get_html_path(item.get("html_file", ""), input_dir)
 
-    title = clean_text(item.get("title", ""))
-    headers = clean_text(item.get("headers", ""))
-    body = clean_text(item.get("body", ""))
-
     # If important text is missing, try reading the saved HTML file.
-    if html_file and (not title or not body):
+    if html_file:
         parsed = parse_html_file(html_file)
-
-        if not title:
-            title = parsed["title"]
-
-        if not headers:
-            headers = parsed["headers"]
-
-        if not body:
-            body = parsed["body"]
+        title   = parsed["title"] or clean_text(item.get("title", ""))
+        headers = parsed["headers"] or clean_text(item.get("headers", ""))
+        body    = parsed["body"]
+    else:
+        # Fall back to JSONL fields if no HTML file exists
+        title   = clean_text(item.get("title", ""))
+        headers = clean_text(item.get("headers", ""))
+        body    = clean_text(item.get("body", ""))
 
     content_hash = item.get("content_hash", item.get("contentHash", ""))
 

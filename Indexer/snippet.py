@@ -1,89 +1,96 @@
 # Indexer/snippet.py
+# Sentence-based snippet generation.
+# Splits the body into sentences, scores each by query term overlap,
+# and returns the highest scoring sentence as the snippet.
+# Falls back to the first sentence if no query terms are found.
 
 import re
 import string
 
-# TODO: this is the wrapper. call by searcher.py
-def get_snippet(body: str, query: str) -> str:
+
+def get_snippet(body: str, query: str, title: str = "") -> str:
     """
-    Find the first occurrence of any query term in the body text and return
-    ~150-250 characters of surrounding context as a snippet.
-    If no query term is found, return the first 200 characters of the body.
+    Main entry point. Splits body into sentences, scores each by how many
+    query terms it contains, and returns the best scoring sentence.
+    Falls back to the first sentence if no terms match.
     """
     if not body:
         return ""
 
+    
     terms = _tokenize_query(query)
+    sentences = _split_sentences(body)
+   
+    # filter out sentences that start with the title
+    if title:
+        sentences = [s for s in sentences 
+                        if not s.lower().startswith(title.lower()[:30])]
+    
+    if not sentences:
+        # no clean sentences found. strip dots and return first 200 chars
+        cleaned = re.sub(r'\.+', ' ', body).strip()
+        cutoff = cleaned.find('.', 200)
+        if cutoff != -1:
+            return cleaned[:cutoff + 1]
+        return cleaned[:200]
 
-    # No usable terms in query. Return the opening of the body
     if not terms:
-        return body[:200] + ("..." if len(body) > 200 else "")
+        return sentences[0]
 
-    body_lower = body.lower()
-    match_index = _find_match_index(body_lower, terms)
+    best = _find_best_sentence(sentences, terms)
+    return best
 
-    # NOTE: user it not informed if no match was found. 
-    # No query term found anywhere in the body. Fall back to opening
-    if match_index == -1:
-        return body[:200] + ("..." if len(body) > 200 else "")
 
-    return _extract_window(body, match_index)
-
-# helpers 
-def _find_match_index(body_lower: str, terms: list[str]) -> int:
+def _split_sentences(body: str) -> list[str]:
     """
-    Search for the first occurrence of any query term in the lowercased body.
-    Returns the character index of the first match, or -1 if none found.
-    Uses word boundaries so 'the' does not match inside 'there'.
+    Split body text into sentences on '.', '!', '?'.
+    Filters out very short sentences (under 20 chars) that are likely
+    nav links or boilerplate.
     """
-    earliest = -1
+    raw = re.split(r'(?<=[.!?])\s+', body)
+    return [
+        s.strip() for s in raw 
+        if len(s.strip()) >= 60
+        and '|' not in s  # filter out sentences with '|' which are likely nav links
+    ]
 
-    for term in terms:
-        match = re.search(r'\b' + re.escape(term) + r'\b', body_lower)
-        if match:
-            idx = match.start()
-            # track the earliest match across all terms
-            if earliest == -1 or idx < earliest:
-                earliest = idx
 
-    return earliest
-
-def _extract_window(body: str, match_index: int, window: int = 200) -> str:
+def _score_sentence(sentence: str, terms: list[str]) -> int:
     """
-    Extract a window of text centered around match_index.
-    Clamps to the start/end of the body and adds ellipses where text is cut off.
-    "Snaps" to word boundaries so the snippet does not cut mid-word.
+    Count how many query terms appear in the sentence.
+    Higher score means more query terms matched.
     """
-    half = window // 2
-    start = max(0, match_index - half)
-    end = min(len(body), match_index + half)
+    sentence_lower = sentence.lower()
+    return sum(
+        1 for term in terms
+        if re.search(r'\b' + re.escape(term) + r'\b', sentence_lower)
+    )
 
-    # Snap start forward to the nearest word boundary
-    if start > 0:
-        space = body.rfind(" ", 0, start)
-        if space != -1:
-            start = space + 1
 
-    # Snap end forward to the nearest word boundary
-    if end < len(body):
-        space = body.find(" ", end)
-        if space != -1:
-            end = space
+def _find_best_sentence(sentences: list[str], terms: list[str]) -> str:
+    """
+    Score each sentence and return the highest scoring one.
+    Falls back to the first sentence if nothing scores above 0.
+    """
+    best_sentence = sentences[0]
+    best_score = 0
 
-    snippet = body[start:end].strip()
+    for sentence in sentences:
+        score = _score_sentence(sentence, terms)
+        if score > best_score:
+            best_score = score
+            best_sentence = sentence
+    
+    # ensure ends with punctuation
+    if not best_sentence.endswith(('.', '!', '?')):
+        best_sentence = best_sentence.rstrip() + '.'
 
-    # Add ellipses to signal that text was cut off on either side
-    if start > 0:
-        snippet = "..." + snippet
-    if end < len(body):
-        snippet = snippet + "..."
-
-    return snippet
+    return best_sentence
 
 def _tokenize_query(query: str) -> list[str]:
     """
     Split the query string into individual lowercased terms,
-    strip punctuation (ex. 'python,' and 'python' are treated the same)
+    stripping punctuation so 'python,' and 'python' are treated the same.
     """
     query = query.lower()
     query = query.translate(str.maketrans("", "", string.punctuation))

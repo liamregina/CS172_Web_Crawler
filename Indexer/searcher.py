@@ -154,7 +154,7 @@ def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
         "title": title,
         "url": url,
         "score": score_doc.score, # .score assigned by Lucene
-        "snippet": get_snippet(body_text, query_str),
+        "snippet": get_snippet(body_text, query_str, title),
         "html_file": html_file,
     }
     
