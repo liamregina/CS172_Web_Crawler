@@ -17,6 +17,12 @@ def results():
 
     # Pylucune part
 
+    # User click search, you should show a list of results (e.g., first 10) returned by Lucene.
+    # List should be ordered in decreasing order of score.
+    # Give weight to your different fields for ranking.
+    # Do not use SOLR or another framework that automatically builds the
+    # UI for you
+
     return render_template("results.html")
 
 
