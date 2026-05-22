@@ -7,3 +7,4 @@ __pycache__/
 venv
 pylucene-10.0.0-src
 Indexer/test_indexer.py
+Indexer/lucene_index/

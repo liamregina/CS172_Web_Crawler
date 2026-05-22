@@ -3,6 +3,8 @@
 # and returns the top 10 results ranked by Lucene score.
 # Each result includes rank, title, url, score, snippet, and html_file.
 # Depends on snippet.py for snippet generation and config.py for shared constants.
+from email import parser
+
 import lucene
 import sys
 # Java standard library
@@ -11,6 +13,7 @@ from java.util import HashMap
 from java.lang import Float
 
 # PyLucene
+from org.apache.lucene.queryparser.classic import QueryParser
 from org.apache.lucene.store import FSDirectory
 from org.apache.lucene.index import DirectoryReader
 from org.apache.lucene.search import IndexSearcher
@@ -18,8 +21,10 @@ from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.queryparser.classic import MultiFieldQueryParser
 
 # Local
-from Indexer.config import INDEX_DIR, TOP_K, FIELD_BOOSTS, TITLE_FIELD, URL_FIELD, BODY_FIELD, HTML_FILE_FIELD
+from Indexer.config import HEADERS_FIELD, INDEX_DIR, TOP_K, FIELD_BOOSTS, TITLE_FIELD, URL_FIELD, BODY_FIELD, HTML_FILE_FIELD
 from Indexer.snippet import get_snippet
+
+_searcher_cache = None
 
 def init_jvm() -> None:
     """
@@ -52,7 +57,7 @@ def get_searcher():
     init_jvm()
     lucene.getVMEnv().attachCurrentThread()
 
-    if _searcher_cache is None:
+    if _searcher_cache is not None:
         return _searcher_cache
     
     directory = FSDirectory.open(Paths.get(INDEX_DIR))
@@ -113,16 +118,17 @@ def _build_query(query_str: str, analyzer):
     If your indexed field names do not match config.py exactly, every
     query will return zero results. 
     """
-    fields = list(FIELD_BOOSTS.keys())
-
+    fields = [TITLE_FIELD, HEADERS_FIELD, BODY_FIELD, URL_FIELD]
+    
     # Lucene expects boosts as a Java HashMap with Java Float values
+    # FIXME: apply boosts after front-end integration
     boosts = HashMap()
     for field, boost in FIELD_BOOSTS.items():
         boosts.put(field, Float(boost))
 
-    parser = MultiFieldQueryParser(fields, analyzer, boosts)
-    return parser.parse(query_str) # .parse converts user plain text to Lucene Query object, applying tokenization and boosts
-
+    parser = QueryParser("body", analyzer)
+    query = parser.parse(query_str)
+    return query
 
 def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
     """
