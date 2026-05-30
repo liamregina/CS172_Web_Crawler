@@ -5,7 +5,7 @@
 
 from flask import Flask, request, render_template, url_for, redirect
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='frontend/static', static_url_path='/static')
 
 @app.route("/", methods=['GET'])
 def search():
