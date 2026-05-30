@@ -24,11 +24,18 @@ def url_filename_hash(url):
 
 # Checking if json file exists, if not create an empty dictionary
 def load_map():
+    # Making sure the data folder exists
+    os.makedirs(data_folder, exist_ok=True)
+
     if not os.path.exists(map_file):
         return {}
     
-    with open(map_file, "r") as f: # But if map_file exists, open/load the mapping from the json file as a python dictionary
-        return json.load(f)
+    try:
+        with open(map_file, "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
 
 # This is to keep updating the mapped dictionary and sending it to the Json file (updated)
 def save_map(mapping):
@@ -41,5 +48,30 @@ def save_page(response, output_dir, page_count):
     with open(filename, "wb") as f:
         f.write(response.body)
 
+def seed_folder_store(seed_url, output_dir):
+    folder_name = seed_url
 
+    # remove protocol
+    folder_name = folder_name.replace("https://", "")
+    folder_name = folder_name.replace("http://", "")
 
+    # clean invalid characters
+    invalids = ['.', '/', ':', '?', '&', '=', '%', '#', '!', '@']
+    for char in invalids:
+        folder_name = folder_name.replace(char, "_")
+
+    # remove duplicate underscores
+    while "__" in folder_name:
+        folder_name = folder_name.replace("__", "_")
+
+    folder_name = folder_name.strip("_")
+
+    # limit length
+    folder_name = folder_name[:40]
+
+    # create inside output_dir (IMPORTANT FIX)
+    new_dir = os.path.join(output_dir, folder_name)
+    os.makedirs(new_dir, exist_ok=True)
+
+    print(f"Created folder: {new_dir}")
+    return new_dir

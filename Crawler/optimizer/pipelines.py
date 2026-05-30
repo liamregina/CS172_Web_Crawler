@@ -71,7 +71,7 @@ class LargeCrawlStoragePipeline:
         self.storeRawHtml = storeRawHtml
 
         self.dataDir = self.outputDir / "jsonl"
-        self.htmlDir = self.outputDir / "html"
+        self.htmlDir = self.outputDir
 
         self.fileIndex = 0
         self.currentFile = None
@@ -105,10 +105,11 @@ class LargeCrawlStoragePipeline:
         rawHtml = item.get("rawHtml", "")
 
         if self.storeRawHtml and rawHtml:
-            htmlFilename = computeUrlFilename(item.get("url", ""))
+            htmlFilename = f"page_{self.itemCount}.html"
             htmlPath = self.htmlDir / htmlFilename
             htmlPath.write_text(rawHtml, encoding="utf-8", errors="ignore")
             item["html_file"] = str(htmlPath)
+
             item["raw_html_bytes"] = len(rawHtml.encode("utf-8", errors="ignore"))
             item.pop("rawHtml", None)
 
