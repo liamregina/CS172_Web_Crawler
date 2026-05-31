@@ -1,29 +1,25 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-<style>
-.parent {
-    display: flex;
-    justify-content: center;  
-    align-items: center;      
-    height: 100vh;
-    font-size: 20px;
-}
-
-.content {
-    text-align: center;
-}
-</style>
-</head>
-
 <body>
-<div class="parent">
-    <div class="content">
-        <h3>Results</h3>
-        </form>
-    </div>
-</div>
+  <h1>Results for "{{ query }}"</h1>
+
+  {% if output %}
+    {% for result in output %}
+      <div class="result">
+        <a href="{{ result.url }}">{{ result.title or result.url }}</a><br>
+        <span class="url">{{ result.url }}</span><br>
+            <p style="padding-left: 1em;">
+            <span class="snippet">{{ result.snippet }}</span><br>
+            </p>
+        <span class="score"><strong>Score: </strong>{{ "%.4f" | format(result.score) }}</span>
+      </div>
+      <br>
+    {% endfor %}
+  {% else %}
+    <p class="no-results">No results found.</p>
+  {% endif %}
+
+  <a href="/">← Search again?</a>
 
 </body>
 </html>
