@@ -1,4 +1,4 @@
-#!/Users/liamregina/CS172/CS172_Web_Crawler/venv/bin/python3.11
+#!/mnt/c/Users/oconn/OneDrive/Documents/ucr_school_stuff/CS172_Web_Crawler/venv/bin/python3
 
 import sys
 import json

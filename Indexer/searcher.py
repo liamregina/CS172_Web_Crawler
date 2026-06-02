@@ -142,7 +142,11 @@ def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
     not stored when you built the index. Use Field.Store.YES for all of them.
     """
 
-    doc = index_searcher.doc(score_doc.doc)
+    # Charlette Note: I changed this to work on my end, uncomment for y'alls
+
+    # doc = index_searcher.doc(score_doc.doc)
+    
+    doc = index_searcher.storedFields().document(score_doc.doc)
 
     title       = doc.get(TITLE_FIELD)      or ""
     url         = doc.get(URL_FIELD)        or ""

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Results for "{{ query }}"</h1>
+
+  {% if output %}
+    {% for result in output %}
+      <div class="result">
+        <a href="{{ result.url }}">{{ result.title or result.url }}</a><br>
+        <span class="url">{{ result.url }}</span><br>
+            <p style="padding-left: 1em;">
+            <span class="snippet">{{ result.snippet }}</span><br>
+            </p>
+        <span class="score"><strong>Score: </strong>{{ "%.4f" | format(result.score) }}</span>
+      </div>
+      <br>
+    {% endfor %}
+  {% else %}
+    <p class="no-results">No results found.</p>
+  {% endif %}
+
+  <a href="/">← Search again?</a>
+
+</body>
+</html>
