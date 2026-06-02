@@ -1,8 +1,12 @@
-__pycache__/
+*.__pycache__/
 .vscode
+.venv/
+venv/
 data/
 pylucene-10.0.0-src/venv/
 __pycache__/
 *.pyc
 venv
 pylucene-10.0.0-src
+Indexer/test_indexer.py
+Indexer/lucene_index/

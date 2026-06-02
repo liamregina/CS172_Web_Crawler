@@ -33,4 +33,4 @@ fi
 
 cd "$(dirname "$0")/.."
 
-python Crawler/crawler.py "$SEED_FILE" "$NUM_PAGES" "$HOPS" "$OPTIMIZE" "$OUT_DIR"
+python3 Crawler/crawler.py "$SEED_FILE" "$NUM_PAGES" "$HOPS" "$OPTIMIZE" "$OUT_DIR"
