@@ -4,6 +4,9 @@
 # Each result includes rank, title, url, score, snippet, and html_file.
 # Depends on snippet.py for snippet generation and config.py for shared constants.
 from email import parser
+import json
+_searcher_cache = None
+_pagerank_cache = None
 
 import lucene
 import sys
@@ -85,18 +88,34 @@ def search(query_str: str, k: int = TOP_K) -> list[dict]:
         return []
 
     try:
-        index_searcher = get_searcher() # rets cached searcher
+        index_searcher = get_searcher()  # returns cached searcher
         analyzer = StandardAnalyzer()
         query = _build_query(query_str, analyzer)
         top_docs = index_searcher.search(query, k)
 
         results = []
         for rank, score_doc in enumerate(top_docs.scoreDocs, start=1):
-            result = _hit_to_dict(index_searcher, score_doc, rank, query_str)
+            result = _hit_to_dict(
+                index_searcher,
+                score_doc,
+                rank,
+                query_str
+            )
             results.append(result)
+
+        # Re-rank using combined Lucene + PageRank score
+        results.sort(
+            key=lambda r: r["score"],
+            reverse=True
+        )
+
+        # Fix ranks after reordering
+        for i, result in enumerate(results, start=1):
+            result["rank"] = i
 
         return results
 
+    
     except Exception as e:
         print(f"Search error: {e}")
         return []
@@ -153,11 +172,23 @@ def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
     body_text   = doc.get(BODY_FIELD)       or ""
     html_file   = doc.get(HTML_FILE_FIELD)  or ""
 
+    pagerank_scores = get_pagerank_scores()
+
+    pagerank_score = float(
+        pagerank_scores.get(url, 0.0)
+    )
+
+    combined_score = (
+        0.85 * score_doc.score
+        + 0.15 * pagerank_score
+    )
+
     return {
         "rank": rank, # the loop in search() assigns rank by hits
         "title": title,
         "url": url,
-        "score": score_doc.score, # .score assigned by Lucene
+        "score": combined_score,
+        "pagerank": pagerank_score,
         "snippet": get_snippet(body_text, query_str, title),
         "html_file": html_file,
     }
@@ -166,6 +197,10 @@ def _hit_to_dict(index_searcher, score_doc, rank: int, query_str: str) -> dict:
 # FIXME: REMOVE THIS WHEN DONE. SEE NOTE BELOW
 def main():
     """
+
+    print("Loaded PageRank entries:", len(get_pagerank_scores()))
+    python3 -m Indexer.searcher "ucr"
+
     CLI entry point for testing. Takes a query from sys.argv and prints
     the top results to the terminal.
     Usage: python -m Indexer.searcher "your query here"
@@ -196,3 +231,19 @@ def main():
 if __name__ == "__main__":
     main()
     
+def get_pagerank_scores():
+    global _pagerank_cache
+
+    if _pagerank_cache is not None:
+        return _pagerank_cache
+
+    try:
+        with open("pagerank_scores.json", "r") as f:
+            _pagerank_cache = json.load(f)
+    except FileNotFoundError:
+        _pagerank_cache = {}
+
+    return _pagerank_cache
+
+
+

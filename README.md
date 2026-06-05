@@ -118,3 +118,113 @@ Example Output:
 
 Crawled 0: https://news.ycombinator.com
 Crawled 1: https://example.com/...
+
+# CS172 Web Search Engine - Project Part B
+# Overview
+
+This project extends the Part A web crawler by adding indexing, retrieval, ranking, and a web-based search interface. Documents collected by the crawler are processed into a searchable index using PyLucene. Queries are evaluated against the index and ranked using Lucene's scoring model, with optional support for PageRank-based ranking.
+
+The system is organized into separate components for:
+
+Document preprocessing
+Index construction
+Query processing
+Snippet generation
+PageRank computation
+Flask web interface
+# Setup
+Mac / Linux
+python3.11 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+Build Index
+python3 Indexer/indexer.py
+# Run PageRank
+python3 Indexer/pagerank.py
+# Run Search Interface
+python3 frontend/app.py
+# Project Structure
+
+Indexer/
+
+indexer.py # builds Lucene index
+searcher.py # query processing and ranking
+pagerank.py # PageRank computation
+snippet.py # snippet generation
+config.py # shared configuration
+
+frontend/
+
+app.py # Flask search interface
+
+tests/
+
+test_pagerank.py # PageRank validation tests
+
+pagerank_scores.json # generated PageRank scores
+
+README.md # project documentation
+
+# PageRank Implementation
+
+PageRank scores are computed from the hyperlink graph extracted from the optimized JSONL crawl data.
+
+Configuration:
+
+Damping factor: 0.85
+Iterations: 20
+
+Each page is initially assigned a rank of 1/N, where N is the number of pages in the graph. During each iteration, rank is distributed across outgoing links according to the standard PageRank update rule.
+
+Dangling nodes (pages with no valid outgoing links) are handled by redistributing their rank uniformly across all pages in the graph. This prevents rank mass from disappearing and ensures that the total PageRank remains approximately 1.0.
+
+The final scores are written to:
+
+pagerank_scores.json
+# Testing
+
+The following PageRank tests were implemented:
+
+Verify PageRank output file generation
+Verify PageRank values sum to approximately 1.0
+Verify output contains pages
+
+Example test execution:
+
+pytest tests/test_pagerank.py -v
+
+Example result:
+
+3 passed
+# Example Output
+
+Example PageRank execution:
+
+After 20 iterations:
+
+0.100628  https://news.ycombinator.com/newsfaq.html
+0.092128  https://news.ycombinator.com/newsguidelines.html
+0.087878  https://news.ycombinator.com/security.html
+
+Total rank: 1.0000000000000002
+# System Behavior
+Documents are indexed using PyLucene.
+Queries are processed using Lucene search APIs.
+Results are ranked using Lucene scoring.
+PageRank scores can be incorporated into ranking.
+Snippets are generated dynamically from document content.
+Search results are displayed through a Flask web interface.
+# Limitations
+Ranking quality depends on crawl coverage.
+PageRank quality depends on the size and connectivity of the crawl graph.
+JavaScript-rendered content is not indexed.
+PyLucene installation may require platform-specific configuration.
+# Screenshots
+
+Include screenshots of:
+
+Indexing command execution
+Flask search page
+Search results page
+PageRank execution
+Example search queries
