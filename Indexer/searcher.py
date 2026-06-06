@@ -117,8 +117,9 @@ def search(query_str: str, k: int = TOP_K) -> list[dict]:
 
     
     except Exception as e:
-        print(f"Search error: {e}")
-        return []
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def _build_query(query_str: str, analyzer):
@@ -228,9 +229,6 @@ def main():
         print(f"    {result['snippet']}")
         print()
 
-if __name__ == "__main__":
-    main()
-    
 def get_pagerank_scores():
     global _pagerank_cache
 
@@ -244,6 +242,11 @@ def get_pagerank_scores():
         _pagerank_cache = {}
 
     return _pagerank_cache
+
+if __name__ == "__main__":
+    main()
+    
+
 
 
 
